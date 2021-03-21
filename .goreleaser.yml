@@ -1,0 +1,63 @@
+builds:
+  - main: main.go
+    binary: gasper
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/gasperio/gasper/cmd.Version={{ .Version }}
+    goarch:
+      - amd64
+      - arm
+      - arm64
+      - 386
+    goos:
+      - linux
+      - darwin
+      - windows
+dockers:
+  - image_templates:
+      - gasperio/gasper:{{ .Tag }}-amd64
+    use_buildx: true
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{ .Date }}"
+      - "--label=org.opencontainers.image.name={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.source={{ .GitURL }}"
+      - "--platform=linux/amd64"
+  - image_templates:
+      - gasperio/gasper:{{ .Tag }}-arm64
+    use_buildx: true
+    goarch: arm64
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{ .Date }}"
+      - "--label=org.opencontainers.image.name={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.source={{ .GitURL }}"
+      - "--platform=linux/arm64"
+docker_manifests:
+  - name_template: gasperio/gasper:{{ .Tag }}
+    image_templates:
+      - gasperio/gasper:{{ .Tag }}-amd64
+      - gasperio/gasper:{{ .Tag }}-arm64
+  - name_template: gasperio/gasper:latest
+    image_templates:
+      - gasperio/gasper:{{ .Tag }}-amd64
+      - gasperio/gasper:{{ .Tag }}-arm64
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^style:'
+      - '^refactor:'
+      - '^test:'
+      - Merge pull request
+      - Merge branch
